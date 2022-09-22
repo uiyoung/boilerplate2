@@ -1,15 +1,24 @@
 const express = require('express');
 const app = express();
-const port = 5000;
+const mongoose = require('mongoose');
+const port = process.env.PORT || 5000;
 
 const config = require('./config/key');
+const authRouter = require('./routes/auth');
 
-const mongoose = require('mongoose');
-mongoose
-  .connect(config.mongoURI)
-  .then(() => console.log('MongoDB Connected'))
-  .catch((err) => console.error(err));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.get('/', (req, res) => res.send('Hello World!'));
+app.use('/auth/', authRouter);
 
-app.listen(port, () => console.log(`Example App listening on port ${port}`));
+const start = async () => {
+  try {
+    mongoose.connect(config.mongoURI);
+    app.listen(port, () => console.log('> Server is up and running on port : ' + port));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+start();
